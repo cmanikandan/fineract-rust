@@ -1,0 +1,11 @@
+Apache Fineract (Rust Migration - fineract-rust)
+Copyright 2008-2026 The Apache Software Foundation
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This repository is a derivative work / Rust migration of modules from Apache Fineract
+licensed under the Apache License, Version 2.0:
+- fineract-progressive-loan-embeddable-schedule-generator (and progressive loan schedule / EMI calculator engine)
+- fineract-validation
+- fineract-command (including fineract-command-async, fineract-command-audit, fineract-command-disruptor, fineract-command-jdbc, and fineract-command-test)

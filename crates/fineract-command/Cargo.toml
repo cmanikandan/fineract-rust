@@ -1,0 +1,18 @@
+[package]
+name = "fineract-command"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Rust migration of Apache Fineract command pipeline (core, async, audit, disruptor, jdbc, and sample API)"
+
+[dependencies]
+axum.workspace = true
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tracing.workspace = true
+uuid.workspace = true

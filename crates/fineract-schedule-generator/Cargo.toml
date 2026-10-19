@@ -1,0 +1,16 @@
+[package]
+name = "fineract-schedule-generator"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Rust migration of Apache Fineract progressive loan embeddable schedule generator and EMI calculator"
+
+[[bin]]
+name = "fineract-schedule-demo"
+path = "src/bin/main.rs"
+
+[dependencies]
+chrono.workspace = true
+serde.workspace = true
+thiserror.workspace = true
