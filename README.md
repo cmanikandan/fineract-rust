@@ -2,7 +2,7 @@
 
 A modern **Rust (Edition 2024)** migration of [Apache Fineract](https://fineract.apache.org/), licensed under the **Apache License, Version 2.0**.
 
-## Workspace Crates (Waves 1, 2 & 3 — 19 Gradle Modules Migrated into 13 Rust Crates)
+## Workspace Crates (Waves 1–4 — 22 Gradle Modules Migrated into 16 Rust Crates)
 
 | Crate | Migrated From (Java / Gradle) | Description | Tests |
 | :--- | :--- | :--- | :---: |
@@ -19,13 +19,16 @@ A modern **Rust (Edition 2024)** migration of [Apache Fineract](https://fineract
 | `crates/fineract-security` | `fineract-security` | Multi-tenant OIDC configuration service with issuer cache & secret encryption, JWT role/authority converter, and SQLi guard | 4 |
 | `crates/fineract-document` | `fineract-document` | Document storage traversal & magic-byte MIME content policies and chainable Base64/DataURL content processors | 3 |
 | `crates/fineract-cob` | `fineract-cob` | Close of Business (COB) batch range partitioner, dialect-aware SQL lock upgrade service, and ordered business step runner | 6 |
+| `crates/fineract-loan-origination` | `fineract-loan-origination` | Loan originator lifecycle, application vs disbursement originator resolution, set reconciliation, and Avro enrichers | 8 |
+| `crates/fineract-investor` | `fineract-investor` | External asset owner transfers, delayed settlement attributes, transferability rules, interest strategies, and investor accounting | 8 |
+| `crates/fineract-accounting` | `fineract-accounting` | Double-entry General Ledger (`GLAccount`, `GLClosure`, `FinancialActivityAccount`, `AccountingRule`, `JournalEntry`, running balances) | 5 |
 
-**Total Automated Tests Passing:** `93 / 93` (0 warnings)
+**Total Automated Tests Passing:** `114 / 114` (0 warnings)
 
 ## Quick Start
 
 ```bash
-# Run all 93 unit and integration tests across all 13 workspace crates
+# Run all 114 unit and integration tests across all 16 workspace crates
 cargo test
 
 # Run the standalone loan schedule generator demo
@@ -34,5 +37,5 @@ cargo run -p fineract-schedule-generator --bin fineract-schedule-demo
 
 ## Documentation
 
-- [CASE_STUDY_AND_MIGRATION_LOG.md](./CASE_STUDY_AND_MIGRATION_LOG.md) — Running case study, chronological module migration log, and token/timing telemetry across Waves 1, 2, and 3.
-- [MIGRATION_REPORT.md](./MIGRATION_REPORT.md) — Initial Wave 1 architectural benchmark report.
+- [CASE_STUDY_AND_MIGRATION_LOG.md](./CASE_STUDY_AND_MIGRATION_LOG.md) — Running case study, chronological module migration log, and token/timing telemetry across Waves 1, 2, 3, and 4.
+- [MIGRATION_REPORT_AND_STATS.md](./MIGRATION_REPORT_AND_STATS.md) — Initial Wave 1 architectural benchmark report.

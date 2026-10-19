@@ -14,16 +14,21 @@ members = [
     "crates/fineract-security",
     "crates/fineract-document",
     "crates/fineract-cob",
+    "crates/fineract-loan-origination",
+    "crates/fineract-investor",
+    "crates/fineract-accounting",
 ]
 
 [workspace.package]
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 license = "Apache-2.0"
 authors = ["Apache Fineract Rust Migration"]
 repository = "https://github.com/cmanikandan/fineract-rust"
 
 [workspace.dependencies]
+rust_decimal = { version = "1.36", features = ["maths", "serde", "serde-with-str"] }
+rust_decimal_macros = "1.36"
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -46,3 +51,6 @@ fineract-client = { path = "crates/fineract-client" }
 fineract-security = { path = "crates/fineract-security" }
 fineract-document = { path = "crates/fineract-document" }
 fineract-cob = { path = "crates/fineract-cob" }
+fineract-loan-origination = { path = "crates/fineract-loan-origination" }
+fineract-investor = { path = "crates/fineract-investor" }
+fineract-accounting = { path = "crates/fineract-accounting" }
