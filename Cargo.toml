@@ -17,10 +17,15 @@ members = [
     "crates/fineract-loan-origination",
     "crates/fineract-investor",
     "crates/fineract-accounting",
+    "crates/fineract-core",
+    "crates/fineract-loan",
+    "crates/fineract-savings",
+    "crates/fineract-working-capital-loan",
+    "crates/fineract-server",
 ]
 
 [workspace.package]
-version = "0.4.0"
+version = "1.0.0"
 edition = "2024"
 license = "Apache-2.0"
 authors = ["Apache Fineract Rust Migration"]
@@ -54,3 +59,8 @@ fineract-cob = { path = "crates/fineract-cob" }
 fineract-loan-origination = { path = "crates/fineract-loan-origination" }
 fineract-investor = { path = "crates/fineract-investor" }
 fineract-accounting = { path = "crates/fineract-accounting" }
+fineract-core = { path = "crates/fineract-core" }
+fineract-loan = { path = "crates/fineract-loan" }
+fineract-savings = { path = "crates/fineract-savings" }
+fineract-working-capital-loan = { path = "crates/fineract-working-capital-loan" }
+fineract-server = { path = "crates/fineract-server" }

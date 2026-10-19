@@ -1,0 +1,42 @@
+[package]
+name = "fineract-server"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "fineract-server"
+path = "src/bin/main.rs"
+
+[dependencies]
+axum.workspace = true
+chrono.workspace = true
+rust_decimal.workspace = true
+rust_decimal_macros.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tower.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+fineract-core.workspace = true
+fineract-validation.workspace = true
+fineract-schedule-generator.workspace = true
+fineract-command.workspace = true
+fineract-events.workspace = true
+fineract-report.workspace = true
+fineract-rates.workspace = true
+fineract-tax.workspace = true
+fineract-branch.workspace = true
+fineract-charge.workspace = true
+fineract-client.workspace = true
+fineract-security.workspace = true
+fineract-document.workspace = true
+fineract-cob.workspace = true
+fineract-loan-origination.workspace = true
+fineract-investor.workspace = true
+fineract-accounting.workspace = true
+fineract-loan.workspace = true
+fineract-savings.workspace = true
+fineract-working-capital-loan.workspace = true

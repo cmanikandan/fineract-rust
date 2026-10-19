@@ -189,7 +189,7 @@ checksum = "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484"
 
 [[package]]
 name = "fineract-accounting"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "rust_decimal",
@@ -202,7 +202,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-branch"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "fineract-schedule-generator",
@@ -213,7 +213,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-charge"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "fineract-schedule-generator",
  "serde",
@@ -223,7 +223,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-client"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -232,7 +232,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-cob"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -243,7 +243,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-command"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
@@ -257,27 +257,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "fineract-document"
-version = "0.4.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "fineract-events"
-version = "0.4.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "fineract-investor"
-version = "0.4.0"
+name = "fineract-core"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "rust_decimal",
@@ -289,8 +270,54 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-document"
+version = "1.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "fineract-events"
+version = "1.0.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "fineract-investor"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "fineract-loan"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "fineract-schedule-generator",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "fineract-loan-origination"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -301,7 +328,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-rates"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
@@ -315,7 +342,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-report"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -325,8 +352,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-savings"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "fineract-schedule-generator"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -335,7 +375,7 @@ dependencies = [
 
 [[package]]
 name = "fineract-security"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
@@ -346,8 +386,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-server"
+version = "1.0.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "fineract-accounting",
+ "fineract-branch",
+ "fineract-charge",
+ "fineract-client",
+ "fineract-cob",
+ "fineract-command",
+ "fineract-core",
+ "fineract-document",
+ "fineract-events",
+ "fineract-investor",
+ "fineract-loan",
+ "fineract-loan-origination",
+ "fineract-rates",
+ "fineract-report",
+ "fineract-savings",
+ "fineract-schedule-generator",
+ "fineract-security",
+ "fineract-tax",
+ "fineract-validation",
+ "fineract-working-capital-loan",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tower",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "fineract-tax"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "axum",
  "chrono",
@@ -359,11 +436,24 @@ dependencies = [
 
 [[package]]
 name = "fineract-validation"
-version = "0.4.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "serde",
  "thiserror",
+]
+
+[[package]]
+name = "fineract-working-capital-loan"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "rust_decimal",
+ "rust_decimal_macros",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]
