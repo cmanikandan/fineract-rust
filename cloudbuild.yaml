@@ -1,0 +1,38 @@
+steps:
+  # 1. Run full 133-test workspace verification suite
+  - name: 'rust:1.85-slim-bookworm'
+    entrypoint: 'cargo'
+    args: ['test', '--workspace']
+
+  # 2. Build & push container image to Google Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/fineract-rust/fineract-server:$SHORT_SHA'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/fineract-rust/fineract-server:$SHORT_SHA'
+
+  # 3. Deploy to Google Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'fineract-rust-api'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/fineract-rust/fineract-server:$SHORT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--port=8080'
+      - '--cpu=2'
+      - '--memory=512Mi'
+      - '--min-instances=1'
+      - '--max-instances=50'
+      - '--no-allow-unauthenticated'
+
+substitutions:
+  _REGION: 'us-central1'

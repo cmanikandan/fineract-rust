@@ -40,3 +40,4 @@ fineract-accounting.workspace = true
 fineract-loan.workspace = true
 fineract-savings.workspace = true
 fineract-working-capital-loan.workspace = true
+fineract-custom.workspace = true

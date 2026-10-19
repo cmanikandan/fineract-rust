@@ -21,6 +21,7 @@ members = [
     "crates/fineract-loan",
     "crates/fineract-savings",
     "crates/fineract-working-capital-loan",
+    "crates/fineract-custom",
     "crates/fineract-server",
 ]
 
@@ -63,4 +64,5 @@ fineract-core = { path = "crates/fineract-core" }
 fineract-loan = { path = "crates/fineract-loan" }
 fineract-savings = { path = "crates/fineract-savings" }
 fineract-working-capital-loan = { path = "crates/fineract-working-capital-loan" }
+fineract-custom = { path = "crates/fineract-custom" }
 fineract-server = { path = "crates/fineract-server" }

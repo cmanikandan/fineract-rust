@@ -270,6 +270,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-custom"
+version = "1.0.0"
+dependencies = [
+ "chrono",
+ "fineract-cob",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "fineract-document"
 version = "1.0.0"
 dependencies = [
@@ -398,6 +410,7 @@ dependencies = [
  "fineract-cob",
  "fineract-command",
  "fineract-core",
+ "fineract-custom",
  "fineract-document",
  "fineract-events",
  "fineract-investor",

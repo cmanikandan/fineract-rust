@@ -582,3 +582,71 @@ mod tests {
         );
     }
 }
+
+impl CoreMoney {
+    /// Applies both decimal scale rounding (`digits_after_decimal`) and optional cash `in_multiples_of` rounding.
+    pub fn of_with_multiples(currency: MonetaryCurrency, amount: Decimal) -> Self {
+        let mut rounded = amount.round_dp_with_strategy(
+            currency.digits_after_decimal,
+            RoundingStrategy::MidpointNearestEven,
+        );
+        if let Some(mult) = currency.in_multiples_of {
+            if mult > 1 {
+                let m = Decimal::from(mult);
+                rounded = (rounded / m)
+                    .round_dp_with_strategy(0, RoundingStrategy::MidpointNearestEven)
+                    * m;
+            }
+        }
+        if rounded.is_zero() {
+            rounded = Decimal::ZERO;
+        }
+        Self {
+            currency,
+            amount: rounded,
+        }
+    }
+}
+
+#[cfg(test)]
+mod corner_case_tests {
+    use super::*;
+    use rust_decimal_macros::dec;
+
+    #[test]
+    fn currency_scale_and_in_multiples_of_corner_cases() {
+        // 0-decimal currency (JPY)
+        let jpy = MonetaryCurrency::new("JPY", 0, None);
+        let yen = CoreMoney::of(jpy, dec!(1234.56));
+        assert_eq!(yen.amount(), dec!(1235));
+
+        // 3-decimal currency (BHD / KWD)
+        let bhd = MonetaryCurrency::new("BHD", 3, None);
+        let dinar = CoreMoney::of(bhd, dec!(10.1236));
+        assert_eq!(dinar.amount(), dec!(10.124));
+
+        // in_multiples_of = 5 cash rounding
+        let chf_mult5 = MonetaryCurrency::new("CHF", 0, Some(5));
+        assert_eq!(
+            CoreMoney::of_with_multiples(chf_mult5.clone(), dec!(12)).amount(),
+            dec!(10)
+        );
+        assert_eq!(
+            CoreMoney::of_with_multiples(chf_mult5, dec!(13)).amount(),
+            dec!(15)
+        );
+
+        // Currency mismatch in CoreMoney::total is rejected
+        let usd = MonetaryCurrency::new("USD", 2, None);
+        let eur = MonetaryCurrency::new("EUR", 2, None);
+        let err = CoreMoney::total(&[
+            CoreMoney::of(usd, dec!(10.00)),
+            CoreMoney::of(eur, dec!(10.00)),
+        ])
+        .unwrap_err();
+        assert_eq!(
+            err,
+            CoreError::CurrencyMismatch("USD".to_string(), "EUR".to_string())
+        );
+    }
+}
