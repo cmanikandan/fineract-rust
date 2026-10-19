@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" style="background:#0f172a; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="gradHeader" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="cardCompute" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- Title & Subtitle -->
+  <rect x="40" y="30" width="1120" height="70" rx="12" fill="url(#gradHeader)" filter="url(#shadow)"/>
+  <text x="60" y="72" fill="#ffffff" font-size="24" font-weight="700" letter-spacing="0.5">Google Cloud Production Reference Architecture</text>
+  <text x="60" y="92" fill="#e2e8f0" font-size="14" font-weight="400">Apache Fineract — Rust Edition 2024 Workspace (fineract-server &amp; fineract-cob)</text>
+
+  <!-- Zone 1: Ingress & Edge Security -->
+  <g id="zone1">
+    <rect x="40" y="125" width="1120" height="120" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="150" fill="#94a3b8" font-size="12" font-weight="700" text-transform="uppercase" letter-spacing="1">Zone 1: Global Edge &amp; API Gateway</text>
+    
+    <!-- Edge Items -->
+    <rect x="60" y="165" width="220" height="60" rx="8" fill="#334155" stroke="#475569" stroke-width="1"/>
+    <text x="75" y="190" fill="#38bdf8" font-size="13" font-weight="600">Client Traffic</text>
+    <text x="75" y="210" fill="#cbd5e1" font-size="11">Mobile, Web &amp; Fintech APIs</text>
+
+    <!-- Arrow -->
+    <path d="M 280 195 L 340 195" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4,4"/>
+
+    <rect x="340" y="165" width="360" height="60" rx="8" fill="#334155" stroke="#475569" stroke-width="1"/>
+    <text x="355" y="190" fill="#38bdf8" font-size="13" font-weight="600">Cloud Load Balancing + Cloud Armor</text>
+    <text x="355" y="210" fill="#cbd5e1" font-size="11">DDoS Mitigation, TLS 1.3 Termination, WAF Rules</text>
+
+    <!-- Arrow -->
+    <path d="M 700 195 L 760 195" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="4,4"/>
+
+    <rect x="760" y="165" width="380" height="60" rx="8" fill="#334155" stroke="#475569" stroke-width="1"/>
+    <text x="775" y="190" fill="#38bdf8" font-size="13" font-weight="600">Apigee X / Identity-Aware Proxy (IAP)</text>
+    <text x="775" y="210" fill="#cbd5e1" font-size="11">OAuth2 &amp; OIDC Token Verification, Rate Limiting</text>
+  </g>
+
+  <!-- Zone 2: Serverless Compute -->
+  <g id="zone2">
+    <rect x="40" y="270" width="1120" height="210" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="295" fill="#94a3b8" font-size="12" font-weight="700" text-transform="uppercase" letter-spacing="1">Zone 2: High-Performance Serverless Compute (Google Cloud Run)</text>
+
+    <!-- Cloud Run Service -->
+    <rect x="60" y="315" width="600" height="145" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1.5"/>
+    <rect x="75" y="330" width="120" height="24" rx="4" fill="#15803d"/>
+    <text x="85" y="346" fill="#ffffff" font-size="11" font-weight="700">Cloud Run Service</text>
+    <text x="210" y="347" fill="#f8fafc" font-size="16" font-weight="700">fineract-server (Axum 0.8 / Tokio)</text>
+    <text x="75" y="380" fill="#94a3b8" font-size="12">• OCI Image: gcr.io/distroless/cc-debian12:nonroot (~28 MB compressed)</text>
+    <text x="75" y="402" fill="#94a3b8" font-size="12">• Cold Start: &lt; 5 ms | RSS Memory: ~12 MB | Concurrency: 1,000 req/inst</text>
+    <text x="75" y="424" fill="#94a3b8" font-size="12">• Endpoints: /fineract-provider/api/v1/*, /actuator/health, /actuator/info</text>
+    <text x="75" y="446" fill="#4ade80" font-size="12" font-weight="600">✓ 19 Domain Crates Monolith: Zero-allocation 128-bit rust_decimal math</text>
+
+    <!-- Cloud Run Jobs + Scheduler -->
+    <rect x="700" y="315" width="440" height="145" rx="8" fill="#0f172a" stroke="#a855f7" stroke-width="1.5"/>
+    <rect x="715" y="330" width="110" height="24" rx="4" fill="#7e22ce"/>
+    <text x="725" y="346" fill="#ffffff" font-size="11" font-weight="700">Cloud Run Job</text>
+    <text x="840" y="347" fill="#f8fafc" font-size="15" font-weight="700">fineract-cob (Batch Engine)</text>
+    <text x="715" y="380" fill="#94a3b8" font-size="12">• Triggered nightly at 00:05 UTC via Cloud Scheduler</text>
+    <text x="715" y="402" fill="#94a3b8" font-size="12">• 8 Distributed Partition Workers (Cloud Run Job Tasks)</text>
+    <text x="715" y="424" fill="#94a3b8" font-size="12">• Distributed Account Locking &amp; Daily Ledger Rollup</text>
+    <text x="715" y="446" fill="#c084fc" font-size="12" font-weight="600">✓ Zero Spring Batch / JVM Overhead (Fast exit on finish)</text>
+  </g>
+
+  <!-- Zone 3: Persistence & Messaging -->
+  <g id="zone3">
+    <rect x="40" y="505" width="1120" height="255" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+    <text x="60" y="530" fill="#94a3b8" font-size="12" font-weight="700" text-transform="uppercase" letter-spacing="1">Zone 3: Persistence, Event Streaming &amp; KMS (Private Service Connect)</text>
+
+    <!-- Cloud SQL -->
+    <rect x="60" y="545" width="255" height="195" rx="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
+    <text x="75" y="575" fill="#38bdf8" font-size="15" font-weight="700">Cloud SQL / AlloyDB</text>
+    <text x="75" y="595" fill="#64748b" font-size="11">PostgreSQL 16 (HA Regional)</text>
+    <text x="75" y="625" fill="#cbd5e1" font-size="12">• Multi-tenant Ledger DB</text>
+    <text x="75" y="647" fill="#cbd5e1" font-size="12">• Double-Entry Journal Entries</text>
+    <text x="75" y="669" fill="#cbd5e1" font-size="12">• Read Replicas for Reporting</text>
+    <text x="75" y="691" fill="#cbd5e1" font-size="12">• Private Service Connect (PSC)</text>
+    <text x="75" y="713" fill="#38bdf8" font-size="11" font-weight="600">✓ Zero Public IP Exposure</text>
+
+    <!-- Cloud PubSub -->
+    <rect x="345" y="545" width="255" height="195" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1"/>
+    <text x="360" y="575" fill="#f59e0b" font-size="15" font-weight="700">Cloud Pub/Sub</text>
+    <text x="360" y="595" fill="#64748b" font-size="11">Enterprise Event Bus</text>
+    <text x="360" y="625" fill="#cbd5e1" font-size="12">• MessageV1 Avro Envelope</text>
+    <text x="360" y="647" fill="#cbd5e1" font-size="12">• Loan &amp; Savings Events</text>
+    <text x="360" y="669" fill="#cbd5e1" font-size="12">• Transactional Outbox Relay</text>
+    <text x="360" y="691" fill="#cbd5e1" font-size="12">• Exactly-Once Delivery</text>
+    <text x="360" y="713" fill="#f59e0b" font-size="11" font-weight="600">✓ Real-time Core Banking Fanout</text>
+
+    <!-- Cloud Storage -->
+    <rect x="630" y="545" width="255" height="195" rx="8" fill="#0f172a" stroke="#ec4899" stroke-width="1"/>
+    <text x="645" y="575" fill="#ec4899" font-size="15" font-weight="700">Cloud Storage (GCS)</text>
+    <text x="645" y="595" fill="#64748b" font-size="11">Encrypted Document Vault</text>
+    <text x="645" y="625" fill="#cbd5e1" font-size="12">• Customer KYC Identification</text>
+    <text x="645" y="647" fill="#cbd5e1" font-size="12">• Loan Contracts &amp; Collateral</text>
+    <text x="645" y="669" fill="#cbd5e1" font-size="12">• SHA-256 Content Addressed</text>
+    <text x="645" y="691" fill="#cbd5e1" font-size="12">• Immutable Retention Lock</text>
+    <text x="645" y="713" fill="#ec4899" font-size="11" font-weight="600">✓ fineract-document Managed</text>
+
+    <!-- Cloud Secret Manager & KMS -->
+    <rect x="915" y="545" width="225" height="195" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="1"/>
+    <text x="930" y="575" fill="#10b981" font-size="15" font-weight="700">Secret Mgr &amp; KMS</text>
+    <text x="930" y="595" fill="#64748b" font-size="11">Hardware-Backed Security</text>
+    <text x="930" y="625" fill="#cbd5e1" font-size="12">• TOTP 2FA Shared Secrets</text>
+    <text x="930" y="647" fill="#cbd5e1" font-size="12">• Multi-Tenant OIDC Keys</text>
+    <text x="930" y="669" fill="#cbd5e1" font-size="12">• Cloud KMS CMEK Keys</text>
+    <text x="930" y="691" fill="#cbd5e1" font-size="12">• Envelope Encryption</text>
+    <text x="930" y="713" fill="#10b981" font-size="11" font-weight="600">✓ Automated Key Rotation</text>
+  </g>
+</svg>
