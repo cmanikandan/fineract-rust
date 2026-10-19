@@ -208,11 +208,15 @@ PORT=8080 cargo run --release -p fineract-server --bin fineract-server
 
 Because `fineract-rust` compiles to a single ~15 MB statically-linked binary with sub-15 ms cold-start time and a ~22 MB memory footprint (vs. 1.5–4 GB for the JVM/Spring Boot stack), it is uniquely suited for serverless and cloud-native deployment on **Google Cloud**.
 
-### 13.1 GCP Production Deployment Architecture (Nano Banana Architecture Diagram)
+### 13.1 Google Cloud Production Deployment Reference Architecture
+
+![Google Cloud Production Reference Architecture](docs/architecture/gcp-deployment-architecture.png)
+
+*High-resolution vector edition: [`docs/architecture/gcp-deployment-architecture.svg`](docs/architecture/gcp-deployment-architecture.svg)*
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 NANO BANANA GCP PRODUCTION BLUEPRINT                                   │
+│                  GOOGLE CLOUD PRODUCTION REFERENCE ARCHITECTURE BLUEPRINT                              │
 │                           Apache Fineract — Rust Edition 2024 (fineract-server)                        │
 └────────────────────────────────────────────────────────────────────────────────────────────────────────┘
 
@@ -292,7 +296,26 @@ flowchart TD
     end
 ```
 
-### 13.2 Step-by-Step GCP Deployment Guide
+### 13.2 Nano Banana (Gemini Image Generation) Prompt Specification
+
+To generate isometric 3D or stylized architectural diagrams using Google's **Nano Banana** (Gemini 2.5 Flash Image / Nano Banana Pro) model in the Gemini app or API:
+
+```text
+Professional cloud architecture diagram of a high-performance banking system on Google Cloud Platform, clean modern isometric vector tech illustration, dark mode theme (#0f172a background) with vibrant glowing accents. 
+
+Three clearly segregated horizontal tiers with sharp borders:
+1. Top Tier (Ingress): Global Google Cloud Load Balancing with Cloud Armor WAF and Apigee X API gateway, receiving traffic from mobile and web client icons.
+2. Middle Tier (Serverless Compute): Google Cloud Run service labeled "fineract-server (Rust Edition 2024, Axum 0.8, 12MB RSS, <5ms cold start)" connected to a nightly Cloud Run Job labeled "fineract-cob (Close of Business batch engine)" triggered by Cloud Scheduler.
+3. Bottom Tier (Persistence & KMS): Connected via Direct VPC Egress / Private Service Connect to four glowing database and service nodes:
+   - "Cloud SQL / AlloyDB (PostgreSQL 16 HA Multi-tenant Ledger)"
+   - "Cloud Pub/Sub (MessageV1 Avro Event Bus)"
+   - "Cloud Storage (Encrypted KYC & Document Vault)"
+   - "Cloud Secret Manager & KMS (CMEK Envelope Encryption)"
+
+Clean engineering typography, glowing directional data-flow lines, ultra-high resolution, sharp labels, no clutter, no spelling mistakes.
+```
+
+### 13.3 Step-by-Step GCP Deployment Guide
 
 #### Step 1: Provision Artifact Registry, Cloud SQL (or AlloyDB), and Secret Manager
 ```bash
@@ -346,7 +369,7 @@ gcloud scheduler jobs create http fineract-cob-nightly \
   --oauth-service-account-email="fineract-cob-sa@$PROJECT_ID.iam.gserviceaccount.com"
 ```
 
-### 13.3 Production Hardening Checklist on Google Cloud
+### 13.4 Production Hardening Checklist on Google Cloud
 1. **Networking & Zero-Trust**: Deploy Cloud Run with **Direct VPC Egress** connected to Cloud SQL / AlloyDB over **Private Service Connect (PSC)** so database traffic never traverses the public internet.
 2. **Security & Compliance (PCI-DSS / SOC2)**:
    - Run containers as `nonroot` (`UID 65532`) via `gcr.io/distroless/cc-debian12:nonroot`.
