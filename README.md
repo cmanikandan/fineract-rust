@@ -1,4 +1,4 @@
-# fineract-rust (Apache Fineract — Complete Rust Edition 2024 Migration)
+# fineract-rust: Complete Apache Fineract Migration to Rust
 
 A complete, zero-unsafe, high-assurance **Rust 1.99.1 (Edition 2024)** workspace migration of **Apache Fineract** covering all **43 / 43 Gradle subprojects** across 6 waves (`17,058` lines of Rust across **19 workspace crates** + 2 binaries, with **133 / 133** automated unit, property, security, and end-to-end tests passing).
 
