@@ -1,17 +1,23 @@
 [workspace]
 resolver = "3"
 members = [
-    "crates/fineract-validation",
     "crates/fineract-schedule-generator",
+    "crates/fineract-validation",
     "crates/fineract-command",
+    "crates/fineract-events",
+    "crates/fineract-report",
+    "crates/fineract-rates",
+    "crates/fineract-tax",
+    "crates/fineract-branch",
+    "crates/fineract-charge",
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 license = "Apache-2.0"
-authors = ["Apache Fineract Contributors"]
-repository = "https://github.com/apache/fineract"
+authors = ["Apache Fineract Rust Migration"]
+repository = "https://github.com/cmanikandan/fineract-rust"
 
 [workspace.dependencies]
 chrono = { version = "0.4", features = ["serde"] }
@@ -23,3 +29,12 @@ axum = "0.8"
 tower = { version = "0.5", features = ["util"] }
 uuid = { version = "1.12", features = ["v4", "serde"] }
 tracing = "0.1"
+fineract-schedule-generator = { path = "crates/fineract-schedule-generator" }
+fineract-validation = { path = "crates/fineract-validation" }
+fineract-command = { path = "crates/fineract-command" }
+fineract-events = { path = "crates/fineract-events" }
+fineract-report = { path = "crates/fineract-report" }
+fineract-rates = { path = "crates/fineract-rates" }
+fineract-tax = { path = "crates/fineract-tax" }
+fineract-branch = { path = "crates/fineract-branch" }
+fineract-charge = { path = "crates/fineract-charge" }

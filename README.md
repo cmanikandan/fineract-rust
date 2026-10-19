@@ -1,6 +1,6 @@
 # fineract-rust
 
-A high-performance Rust 2024 migration of the standalone and core pipeline modules of [Apache Fineract](https://fineract.apache.org/).
+A high-performance **Rust Edition 2024** migration of [Apache Fineract](https://fineract.apache.org/) modules.
 
 ## License & Attribution
 
@@ -12,45 +12,33 @@ Per **Sections 2 and 4 of the Apache License 2.0**:
 
 ---
 
-## Workspace Architecture
+## Workspace Architecture (Waves 1 & 2 — 14 Gradle Modules → 9 Rust Crates)
 
 `fineract-rust` is organized as a Cargo workspace using **Rust Edition 2024** (`resolver = "3"`) and modern, latest-generation Rust dependencies (`rustc 1.99.1`, `axum 0.8`, `tokio 1.53`, `thiserror 2.0`, `chrono 0.4`, `serde 1.0`, `uuid 1.28`).
 
-| Crate | Original Java Modules | Description |
-| :--- | :--- | :--- |
-| `crates/fineract-schedule-generator` | `fineract-progressive-loan-embeddable-schedule-generator`, `fineract-progressive-loan`, `fineract-loan`, `fineract-core` | Exact fixed-point decimal (`BigDec` / `MathContext`), `Money` & `CurrencyData`, `DefaultScheduledDateGenerator`, `ProgressiveEMICalculator`, `EmbeddableProgressiveLoanScheduleGenerator`, and CLI demo binary (`fineract-schedule-demo`). |
-| `crates/fineract-validation` | `fineract-validation` | Zero-allocation validator suite: `DateFormatValidator` (full `java.time.format.DateTimeFormatter` pattern parser), `EnumValueValidator`, `LocaleValidator` (ISO 639/3166 & BCP-47), and `LocalDateValidator` (strict `ResolverStyle.STRICT` calendar resolver including leap-year rules). |
-| `crates/fineract-command` | `fineract-command`, `fineract-command-async`, `fineract-command-audit`, `fineract-command-disruptor`, `fineract-command-jdbc`, `fineract-command-test` | Full CQRS command pipeline: `Command<Req, Res>`, `DefaultCommandHandlerManager`, `DefaultCommandHookManager`, `SynchronousCommandDispatcher` (with idempotency and fallback error recovery), `AsyncCommandDispatcher` (Tokio work-stealing pool), `DisruptorCommandDispatcher` (bounded high-throughput MPSC ring buffer), lifecycle hooks (`Timestamp`, `Username`, `ServletHeaders`, `Audit`), `JdbcCommandStore`, and an **Axum 0.8** REST API (`DummyApiController`). |
+| Wave | Crate | Original Java Modules | Rust LOC | Tests |
+| :---: | :--- | :--- | :---: | :---: |
+| **Wave 1** | `crates/fineract-validation` | `fineract-validation` | 967 | 14 |
+| **Wave 1** | `crates/fineract-schedule-generator` | `fineract-progressive-loan-embeddable-schedule-generator` (+ Progressive EMI & `BigDec`/`Money`) | 2,769 | 6 (+ CLI) |
+| **Wave 1** | `crates/fineract-command` | `fineract-command`, `-async`, `-audit`, `-disruptor`, `-jdbc`, `-test` | 1,697 | 8 |
+| **Wave 2** | `crates/fineract-events` | `fineract-avro-schemas` (`MessageV1`, `BulkMessagePayloadV1`, `ByteBufferSerializable`) | 362 | 2 |
+| **Wave 2** | `crates/fineract-report` | `fineract-report` (`ReportingProcessServiceProvider`, `ReportParameterTypeResolver`) | 384 | 3 |
+| **Wave 2** | `crates/fineract-rates` | `fineract-rates` (`FloatingRate`, BLR differential periods, validators, Axum API) | 941 | 15 |
+| **Wave 2** | `crates/fineract-tax` | `fineract-tax` (`TaxComponent`, `TaxGroup`, `TaxUtils`, `ChargeTaxApplicationService`, `TaxValidator`) | 615 | 9 |
+| **Wave 2** | `crates/fineract-branch` | `fineract-branch` (`Teller`, `Cashier`, `CashierTxnType`, `DateRange`, JSON deserializer) | 622 | 7 |
+| **Wave 2** | `crates/fineract-charge` | `fineract-charge` (`Charge`, `ChargeAppliesTo`, `ChargeTimeType`, `ChargeCalculationType`, `ChargePaymentMode`) | 875 | 11 |
+| **Total** | **9 Workspace Crates** | **14 Apache Fineract Gradle Modules** | **9,232 LOC** | **75 / 75 Passing** |
 
 ---
 
 ## Building, Running & Testing
 
 ```bash
-# Run the complete unit and integration test suite (28 tests across all 3 crates)
+# Run the complete unit and integration test suite (75 tests across all 9 crates)
 cargo test
 
 # Run the standalone Progressive Loan Schedule Generator CLI demo
 cargo run --bin fineract-schedule-demo
 ```
 
-### Sample CLI Output (`cargo run --bin fineract-schedule-demo`)
-
-```text
-#------ Loan Schedule -----------------#
-  Number of Periods: 6
-  Loan Term in Days: 182
-  Total Disbursed Amount: 100.00
-  Total Interest Amount: 2.05
-  Total Repayment Amount: 102.05
-#------ Repayment Schedule ------------#
-  Disbursement - Date: 2024-01-01, Amount: 100.00
-  Repayment Period: #1, Due Date: 2024-02-01, Balance: 83.57, Principal: 16.43, Interest: 0.58, Total: 17.01, Total Outstanding Balance: 85.04
-  Repayment Period: #2, Due Date: 2024-03-01, Balance: 67.05, Principal: 16.52, Interest: 0.49, Total: 17.01, Total Outstanding Balance: 68.03
-  Repayment Period: #3, Due Date: 2024-04-01, Balance: 50.43, Principal: 16.62, Interest: 0.39, Total: 17.01, Total Outstanding Balance: 51.02
-  Repayment Period: #4, Due Date: 2024-05-01, Balance: 33.71, Principal: 16.72, Interest: 0.29, Total: 17.01, Total Outstanding Balance: 34.01
-  Repayment Period: #5, Due Date: 2024-06-01, Balance: 16.90, Principal: 16.81, Interest: 0.20, Total: 17.01, Total Outstanding Balance: 17.00
-  Repayment Period: #6, Due Date: 2024-07-01, Balance: 0.00, Principal: 16.90, Interest: 0.10, Total: 17.00, Total Outstanding Balance: 0.00
-```
-
-See [MIGRATION_REPORT_AND_STATS.md](./MIGRATION_REPORT_AND_STATS.md) for the complete migration telemetry, token/timing statistics, and architectural comparison between Java 21 / Spring Boot 3 and Rust 2024.
+See [CASE_STUDY_AND_MIGRATION_LOG.md](./CASE_STUDY_AND_MIGRATION_LOG.md) for the chronological module-by-module case study, token/timing telemetry ledger, and Waves 3–6 roadmap.

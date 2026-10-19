@@ -146,8 +146,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aedcfb3409746eddb02b9e19ebda1c3394f759a152e48ee875a0844d1b955484"
 
 [[package]]
+name = "fineract-branch"
+version = "0.2.0"
+dependencies = [
+ "chrono",
+ "fineract-schedule-generator",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "fineract-charge"
+version = "0.2.0"
+dependencies = [
+ "fineract-schedule-generator",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "fineract-command"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "axum",
  "chrono",
@@ -161,8 +182,42 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-events"
+version = "0.2.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "fineract-rates"
+version = "0.2.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "fineract-schedule-generator",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tower",
+]
+
+[[package]]
+name = "fineract-report"
+version = "0.2.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "fineract-schedule-generator"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "serde",
@@ -170,8 +225,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "fineract-tax"
+version = "0.2.0"
+dependencies = [
+ "axum",
+ "chrono",
+ "fineract-schedule-generator",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "fineract-validation"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "serde",

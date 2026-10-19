@@ -1,0 +1,11 @@
+[package]
+name = "fineract-charge"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+fineract-schedule-generator.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true

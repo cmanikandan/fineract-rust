@@ -462,6 +462,66 @@ impl Ord for BigDec {
     }
 }
 
+impl std::hash::Hash for BigDec {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        let norm = self.strip_trailing_zeros();
+        norm.unscaled.hash(state);
+        norm.scale.hash(state);
+    }
+}
+
+impl From<i64> for BigDec {
+    fn from(val: i64) -> Self {
+        Self::from_i64(val)
+    }
+}
+
+impl From<i32> for BigDec {
+    fn from(val: i32) -> Self {
+        Self::from_i64(val as i64)
+    }
+}
+
+impl std::ops::Add for BigDec {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::add(self, rhs, None)
+    }
+}
+
+impl std::ops::Sub for BigDec {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::sub(self, rhs, None)
+    }
+}
+
+impl std::ops::Mul for BigDec {
+    type Output = Self;
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self::mul(self, rhs, None)
+    }
+}
+
+impl BigDec {
+    pub fn divide_scale(self, rhs: Self, scale: u32, mode: RoundingMode) -> Self {
+        let mc = MathContext {
+            precision: 18,
+            rounding_mode: mode,
+        };
+        self.div(rhs, mc).set_scale(scale as i32, mode)
+    }
+
+    pub fn to_string_with_scale(self, scale: u32) -> String {
+        self.set_scale(scale as i32, RoundingMode::HalfEven)
+            .to_string()
+    }
+
+    pub fn parse_lossy(s: &str) -> Self {
+        Self::parse(s).unwrap_or(Self::ZERO)
+    }
+}
+
 impl fmt::Display for BigDec {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.scale <= 0 {

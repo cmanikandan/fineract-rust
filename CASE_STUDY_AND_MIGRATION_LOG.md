@@ -16,18 +16,18 @@
 
 ---
 
-## 2. Cumulative Telemetry Dashboard (Running Totals)
+## 2. Cumulative Telemetry Dashboard (Running Totals Across Wave 1 + Wave 2)
 
-| Metric | Cumulative Value | Notes |
-| :--- | :--- | :--- |
-| **Waves Completed** | **Wave 1 (Complete)** | 8 Gradle modules consolidated into 3 idiomatic Rust crates |
-| **Gradle Modules Migrated** | **8 / 30 source modules** | (`fineract-validation`, `fineract-progressive-loan-embeddable-schedule-generator`, `fineract-command`, `fineract-command-async`, `fineract-command-audit`, `fineract-command-disruptor`, `fineract-command-jdbc`, `fineract-command-test`) |
-| **Total Active Elapsed Time** | **~29.0 minutes** | Across Phase 0 (Audit), Wave 1 (Migration + Verification), and Case Study Setup |
-| **Total Input / Context Tokens** | **~134,000 tokens** | Includes Java AST/source inspection, test suites, build logs, and GitHub API calls |
-| **Total Output / Generation Tokens** | **~33,500 tokens** | Includes Rust source code, unit/integration tests, and case study documentation |
-| **Combined Token Consumption** | **~167,500 tokens** | Running total across the entire migration journey |
-| **Rust Workspace Lines of Code** | **2,751 LOC** (Rust source + tests) | Replaces ~4,673 LOC of direct Java module code + core progressive loan dependencies |
-| **Automated Tests Passing** | **28 / 28 (100%)** | `0.01s` total test execution time, `0` compiler warnings |
+| Metric | Wave 1 Total | Wave 2 Delta | Cumulative Total | Notes |
+| :--- | :---: | :---: | :---: | :--- |
+| **Waves Completed** | Wave 1 | +Wave 2 | **2 Waves Complete** | Waves 1 & 2 (14 Gradle modules → 9 Rust crates) |
+| **Gradle Modules Migrated** | 8 / 30 | +6 / 30 | **14 / 30 source modules** | 46.7% of all code-bearing Gradle modules migrated |
+| **Active Elapsed Time** | ~29.0 mins | ~23.5 mins | **~52.5 minutes** | End-to-end across Audit + Wave 1 + Wave 2 |
+| **Input / Context Tokens** | ~134,000 | ~92,000 | **~226,000 tokens** | Includes Java AST/test inspection, build verification, and GitHub sync |
+| **Output / Generation Tokens** | ~33,500 | ~24,500 | **~58,000 tokens** | 9,232 lines of Rust 2024 code + tests + documentation |
+| **Combined Token Consumption** | ~167,500 | ~116,500 | **~284,000 tokens** | Running total across the entire migration journey |
+| **Rust Workspace Lines of Code** | 5,433 LOC | +3,799 LOC | **9,232 LOC** | Across 9 workspace crates (`0` warnings) |
+| **Automated Tests Passing** | 28 / 28 | +47 / 47 | **75 / 75 (100%)** | `0.02s` total test execution time across all 9 crates |
 
 ---
 
@@ -38,103 +38,110 @@
 - **Activity**:
   - Audited all 33 `fineract-*` subprojects in `/new_repository` (4,043 main Java files / 582,812 main LOC; 5,879 total Java files including E2E & integration tests).
   - Verified **Apache License, Version 2.0** compliance (`LICENSE_SOURCE`, `NOTICE_SOURCE`, `APACHE_LICENSETEXT.md`) confirming unrestricted rights to translate to Rust, modify, and fork into a private repository (`fineract-rust`).
-  - Identified the decoupled foundation modules for **Wave 1**.
 - **Telemetry**:
   - *Input Tokens*: ~32,000 | *Output Tokens*: ~3,500 | *Total*: **~35,500 tokens**
 
 ---
 
-### Wave 1: Foundation, Validation, Financial Math & CQRS Command Pipeline
-- **Timestamp**: `2026-10-19 00:20:59 PDT` → `00:46:54 PDT` (**~25 min 55 sec**, including offline C linker installation & `rustup` toolchain bootstrap)
+### Wave 1: Foundation, Validation, Financial Math & CQRS Command Pipeline (Modules #1–#8)
+- **Timestamp**: `2026-10-19 00:20:59 PDT` → `00:46:54 PDT` (**~25 min 55 sec**)
 
-#### Step 1.1: Toolchain Bootstrap (Sandbox Environment)
-- **Duration**: ~4.5 minutes
-- **Activity**: Extracted `gcc-13`, `binutils`, `libc6-dev`, `libssl-dev` in rootless container and installed Rust `1.99.1` via `rustup`.
-
-#### Step 1.2: Module #1 — `fineract-validation` → `crates/fineract-validation`
-- **Order in Migration**: **1st Module**
-- **Original Java Scope**: `fineract-validation` (11 Java files, 716 LOC)
-- **Migrated Rust Scope**: `crates/fineract-validation/src/lib.rs` (968 LOC including 14 comprehensive unit test suites)
-- **Components Migrated**:
-  1. `DateFormatValidator`: Full state-machine parser for `java.time.format.DateTimeFormatter` patterns (single-quote escaping, symbol repetition cardinality checks for `G, u, y, Y, Q, q, M, L, w, W, d, D, F, g, E, e, c, a, h, H, k, K, m, s, S, A, n, N, V, z, O, X, x, Z`, and conflict detection).
-  2. `EnumValueValidator`: Compile-time `EnumVariants` trait + runtime case-sensitive/insensitive validator replacing Jakarta Bean Validation `@EnumValue`.
-  3. `LocaleValidator`: Strict ISO 639 language + ISO 3166 country + BCP-47 tag validator.
-  4. `LocalDateValidator`: `ResolverStyle.STRICT` date parser supporting numeric and month-name (`MMM`/`MMMM`) patterns and strict leap-year validation (e.g., rejecting `2023-02-29`).
-- **Telemetry (Module #1)**:
-  - *Elapsed Time*: ~5.5 minutes
-  - *Input Tokens*: ~22,000 | *Output Tokens*: ~7,800 | *Total*: **~29,800 tokens**
-  - *Tests*: **14 / 14 passing**
-
-#### Step 1.3: Module #2 — `fineract-progressive-loan-embeddable-schedule-generator` (+ Core Progressive EMI Math) → `crates/fineract-schedule-generator`
-- **Order in Migration**: **2nd Module**
-- **Original Java Scope**: `fineract-progressive-loan-embeddable-schedule-generator` (3 Java files, 305 LOC) + vertical slice of `fineract-progressive-loan`, `fineract-loan`, and `fineract-core` (`ProgressiveLoanScheduleGenerator`, `ProgressiveEMICalculator`, `DefaultScheduledDateGenerator`, `Money`, `MathContext`)
-- **Migrated Rust Scope**: `crates/fineract-schedule-generator/src/lib.rs` (1,073 LOC) + CLI binary `src/bin/main.rs` (85 LOC)
-- **Components Migrated**:
-  1. `BigDec` & `MathContext`: Stack-allocated `i128` fixed-point decimal type with exact `MathContext(12, RoundingMode::HalfEven)` significant-digit and scale-based rounding across all 8 Java `RoundingMode`s.
-  2. `Money` & `CurrencyData`: Multi-currency monetary primitive with `inMultiplesOf` rounding.
-  3. `DefaultScheduledDateGenerator`: Period schedule generator across `Days`, `Weeks`, `Months`, and `Years` with end-of-month rollover handling (`chrono::NaiveDate`).
-  4. `ProgressiveEMICalculator`: Full port of `addDisbursement`, `changeInterestRate` (effective `submittedOnDate - 1 day`), `rateFactorByRepaymentPeriod`, `fnValue`, `calculateEMIOnActualModel`, `payInterest`, `payPrincipal`, and last-unpaid-period penny adjustment.
-  5. `EmbeddableProgressiveLoanScheduleGenerator` & `fineract-schedule-demo` CLI.
-- **Telemetry (Module #2)**:
-  - *Elapsed Time*: ~8.5 minutes
-  - *Input Tokens*: ~36,000 | *Output Tokens*: ~9,200 | *Total*: **~45,200 tokens**
-  - *Tests*: **6 / 6 passing** (100% cent-for-cent match with Java `BigDecimal` test suite)
-
-#### Step 1.4: Module Group #3 — `fineract-command` Family (6 Gradle Modules) → `crates/fineract-command`
-- **Order in Migration**: **3rd Module Group (Gradle Modules #3–#8)**
-- **Original Java Scope**:
-  - `fineract-command` (29 files, 1,384 LOC)
-  - `fineract-command-async` (4 files, 199 LOC)
-  - `fineract-command-audit` (7 files, 309 LOC)
-  - `fineract-command-disruptor` (5 files, 351 LOC)
-  - `fineract-command-jdbc` (11 files, 707 LOC)
-  - `fineract-command-test` (15 files, 702 LOC)
-  - *Combined Java Scope*: 71 Java files, 3,652 LOC
-- **Migrated Rust Scope**: `crates/fineract-command/src/lib.rs` (625 LOC)
-- **Components Migrated**:
-  1. `Command<Req, Res>`, `CommandProperties`, `CommandState` (`Initiated`, `Updated`, `Approved`, `Rejected`, `Executed`, `Error`, `UnderProcessing`).
-  2. `DefaultCommandHandlerManager` & `DefaultCommandHookManager` (type-erased `TypeId` dispatch + ordered `Before`, `After`, and `Error` hooks).
-  3. `SynchronousCommandDispatcher` (with `X-Fineract-Idempotency` header deduplication and Resilience4j-equivalent `ErrorHandler` fallback recovery).
-  4. `AsyncCommandDispatcher` (Tokio `spawn` + `oneshot` channel response future) & `DisruptorCommandDispatcher` (bounded high-throughput MPSC ring-buffer worker).
-  5. `TimestampCommandHook`, `UsernameCommandHook`, `ServletHeadersCommandHook`, `AuditCommandHookBefore/After/Error`.
-  6. `JdbcCommandStore`, `CommandRepository`, `CommandEntity`, `CommandMapper`.
-  7. Axum 0.8 REST API (`DummyApiController` serving `/test/dummy/sync` and `/test/dummy/async`).
-- **Telemetry (Module Group #3)**:
-  - *Elapsed Time*: ~5.5 minutes
-  - *Input Tokens*: ~28,000 | *Output Tokens*: ~6,500 | *Total*: **~34,500 tokens**
-  - *Tests*: **8 / 8 passing**
-
-#### Step 1.5: Compilation, Documentation & GitHub Push (`cmanikandan/fineract-rust`)
-- **Duration**: ~2.0 minutes
-- **Telemetry**:
-  - *Input Tokens*: ~16,000 | *Output Tokens*: ~6,500 | *Total*: **~22,500 tokens**
+| Order | Source Gradle Module(s) | Target Rust Crate | Java Files / LOC | Rust LOC | Tests | Tokens Used | Duration |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **#1** | `fineract-validation` | `crates/fineract-validation` | 11 files / 716 LOC | 967 LOC | 14 / 14 | ~29,800 | ~5.5 mins |
+| **#2** | `fineract-progressive-loan-embeddable-schedule-generator` (+ Progressive EMI & `BigDec`/`Money` slice) | `crates/fineract-schedule-generator` | 3 files / 305 LOC (+ core EMI math) | 2,769 LOC | 6 / 6 (+ CLI) | ~45,200 | ~8.5 mins |
+| **#3–#8** | `fineract-command`, `-async`, `-audit`, `-disruptor`, `-jdbc`, `-test` | `crates/fineract-command` | 71 files / 3,652 LOC | 1,697 LOC | 8 / 8 | ~34,500 | ~5.5 mins |
 
 ---
 
-## 4. Roadmap: How We Continue This Journey (Waves 2 – 6)
+### Wave 2: Event Schemas, Reporting, Floating Rates, Tax, Branch/Tellers & Charges (Modules #9–#14)
+- **Timestamp**: `2026-10-19 01:16:14 PDT` → `01:39:45 PDT` (**~23 min 31 sec**)
 
-Because Apache Fineract is a 33-module banking platform, the most effective way to continue migrating to `fineract-rust` is a **Bottom-Up Strangler-Fig Strategy**—migrating leaf domain modules with low coupling first, building up shared primitives in `fineract-core`, and progressively absorbing the product engines (`loan`, `savings`, `accounting`).
+#### Step 2.1: Module #9 — `fineract-avro-schemas` → `crates/fineract-events`
+- **Order in Migration**: **9th Module**
+- **Original Java/Avro Scope**: `fineract-avro-schemas` (1 Java file `ByteBufferSerializable.java` + 82 `.avsc` Avro schema definitions)
+- **Migrated Rust Scope**: `crates/fineract-events/src/lib.rs` (**362 LOC**)
+- **Components Migrated**:
+  - `ByteBufferSerializable` trait with `schema_fqn()`, `to_byte_buffer()`, and `from_byte_buffer()`.
+  - `MessageV1` external business event envelope (`id`, `source`, `type`, `category`, `createdAt`, `businessDate`, `tenantId`, `idempotencyKey`, `dataschema`, `data`), `BulkMessageItemV1`, and `BulkMessagePayloadV1`.
+  - Domain event payloads (`CurrencyDataV1`, `EnumOptionDataV1`, `CommandProcessingResultV1`, `OfficeDataV1`, `RateDataV1`, `ChargeDataV1`, `LoanAmountDataV1`).
+- **Telemetry**:
+  - *Elapsed Time*: ~3.0 minutes | *Input Tokens*: ~12,000 | *Output Tokens*: ~3,200 | *Total*: **~15,200 tokens**
+  - *Tests*: **2 / 2 passing**
 
-Here is the prioritized multi-wave roadmap:
+#### Step 2.2: Module #10 — `fineract-report` → `crates/fineract-report`
+- **Order in Migration**: **10th Module**
+- **Original Java Scope**: `fineract-report` (6 Java files, 301 LOC)
+- **Migrated Rust Scope**: `crates/fineract-report/src/lib.rs` (**384 LOC**)
+- **Components Migrated**:
+  - `ReportingProcessService` trait, `BaseReportingProcessService` (`extract_and_validate_report_params` extracting `R_` query parameters into `${param}` placeholders, rejecting unregistered parameters, and validating `"number"` and `"date"` parameter formats via `InputValidator`).
+  - `SqlReportParameterTypeResolver` (replicating `ReportParameterTypeResolverImpl` with PostgreSQL `"parameter_FormatType"` vs. MySQL `parameter_FormatType` quoting).
+  - `ReportingProcessServiceProvider` registry mapping report types (`"Table"`, `"Pentaho"`, `"SMS"`) to service handlers.
+- **Telemetry**:
+  - *Elapsed Time*: ~3.0 minutes | *Input Tokens*: ~11,000 | *Output Tokens*: ~3,300 | *Total*: **~14,300 tokens**
+  - *Tests*: **3 / 3 passing**
 
-### Wave 2: Low-Coupling Financial Domain Modules (~13,092 Java LOC)
-These modules have small, well-bounded domain models and minimal external dependencies, making them ideal next crates in the `fineract-rust` workspace:
+#### Step 2.3: Module #11 — `fineract-rates` → `crates/fineract-rates`
+- **Order in Migration**: **11th Module**
+- **Original Java Scope**: `fineract-rates` (30 Java files, 2,348 LOC)
+- **Migrated Rust Scope**: `crates/fineract-rates/src/lib.rs` (**941 LOC**)
+- **Components Migrated**:
+  - `FloatingRate`, `FloatingRatePeriod`, `FloatingRateDTO`, `FloatingRateData`, `FloatingRatePeriodData`.
+  - `FloatingRate::fetch_interest_rates` (including Base Lending Rate differential addition `interest_rate + interest_rate_diff + fetch_base_rate(from_date)`) and `FloatingRate::replace_rate_periods`.
+  - `validate_create_request`, `validate_update_request`, and `check_rate_periods` enforcing all 10 Fineract validation message templates (`NAME_NOT_BLANK`, `RATE_PERIODS_NOT_EMPTY`, `FROM_DATE_INVALID`, `FROM_DATE_FUTURE`, `FROM_DATE_DUPLICATE`, `INTEREST_RATE_POSITIVE_OR_ZERO`, `BLR_DUPLICATE`, `BLR_LINKED`, `DIFFERENTIAL_NOT_AVAILABLE`, `DIFFERENTIAL_INVALID_FOR_BLR`).
+  - Axum 0.8 REST API (`floating_rates_router` serving `/floatingrates` and `/floatingrates/{id}`).
+- **Telemetry**:
+  - *Elapsed Time*: ~5.0 minutes | *Input Tokens*: ~21,000 | *Output Tokens*: ~5,800 | *Total*: **~26,800 tokens**
+  - *Tests*: **15 / 15 passing** (all 14 JUnit tests from `FloatingRateValidationTest` + differential BLR calculation test)
 
-| Target Order | Gradle Module | Java Files | Java LOC | Proposed Rust Crate | Key Scope & Tech Upgrade |
-| :---: | :--- | :---: | :---: | :--- | :--- |
-| **#9** | `fineract-avro-schemas` | 1 | 28 | `crates/fineract-events` | External business event schemas (`serde` + `apache-avro` / JSON schemas) |
-| **#10** | `fineract-report` | 6 | 301 | `crates/fineract-report` | Reporting provider registry, Pentaho/CSV/PDF report execution traits |
-| **#11** | `fineract-rates` | 30 | 2,348 | `crates/fineract-rates` | Floating interest rates, base lending rates, rate period lookup & validation |
-| **#12** | `fineract-tax` | 30 | 2,576 | `crates/fineract-tax` | Tax components, tax group mappings, effective-date percentage split calculators |
-| **#13** | `fineract-branch` | 49 | 3,893 | `crates/fineract-branch` | Office hierarchy, teller/cashier allocation, cash settlement & vault transactions |
-| **#14** | `fineract-charge` | 39 | 3,946 | `crates/fineract-charge` | Fee & penalty definitions (flat, % of amount, % of interest) for loans & savings |
+#### Step 2.4: Module #12 — `fineract-tax` → `crates/fineract-tax`
+- **Order in Migration**: **12th Module**
+- **Original Java Scope**: `fineract-tax` (30 Java files, 2,576 LOC)
+- **Migrated Rust Scope**: `crates/fineract-tax/src/lib.rs` (**615 LOC**)
+- **Components Migrated**:
+  - `TaxComponent`, `TaxComponentHistory`, `TaxGroup`, `TaxGroupMappings` (`occurs_on_day_from_and_up_to_and_including`), `GLAccountType`.
+  - `TaxUtils` (`split_tax`, `total_tax_amount`, `income_amount`, `add_tax` using `BigDec` and `RoundingMode::HalfEven`).
+  - `ChargeTaxApplicationService` & `ChargeTaxApplicationServiceImpl`.
+  - `TaxValidator` (validating overlapping component dates and ensuring total group tax percentage <= 100% across all historical start dates).
+- **Telemetry**:
+  - *Elapsed Time*: ~4.0 minutes | *Input Tokens*: ~17,500 | *Output Tokens*: ~3,900 | *Total*: **~21,400 tokens**
+  - *Tests*: **9 / 9 passing** (all tests from `ChargeTaxApplicationServiceTest` + `TaxValidator` 100% cap validation)
+
+#### Step 2.5: Module #13 — `fineract-branch` → `crates/fineract-branch`
+- **Order in Migration**: **13th Module**
+- **Original Java Scope**: `fineract-branch` (49 Java files, 3,893 LOC)
+- **Migrated Rust Scope**: `crates/fineract-branch/src/lib.rs` (**622 LOC**)
+- **Components Migrated**:
+  - `Teller`, `TellerStatus`, `Cashier`, `CashierTransaction`, `CashierTxnType` (`ALLOCATE=101`, `SETTLE=102`, `INWARD_CASH_TXN=103`, `OUTWARD_CASH_TXN=104`), `DateRange` (`from_string` with `..` delimiter).
+  - `CashierTransactionsWithSummaryData` (computing `sum_cash_allocation`, `sum_inward_cash`, `sum_outward_cash`, `sum_cash_settlement`, `net_cash`, and `CashierInsufficientAmountException` validation).
+  - `TellerCommandFromApiJsonDeserializer` (`validate_for_cash_txn_for_cashier` and `validate_for_create_and_update_teller`).
+- **Telemetry**:
+  - *Elapsed Time*: ~4.0 minutes | *Input Tokens*: ~14,500 | *Output Tokens*: ~3,800 | *Total*: **~18,300 tokens**
+  - *Tests*: **7 / 7 passing** (all 6 JUnit tests from `TellerCommandFromApiJsonDeserializerTest` + `DateRange` & cashier net cash settlement test)
+
+#### Step 2.6: Module #14 — `fineract-charge` → `crates/fineract-charge`
+- **Order in Migration**: **14th Module**
+- **Original Java Scope**: `fineract-charge` (39 Java files, 3,946 LOC)
+- **Migrated Rust Scope**: `crates/fineract-charge/src/lib.rs` (**875 LOC**)
+- **Components Migrated**:
+  - `ChargeAppliesTo` (`Loan=1`, `Savings=2`, `Client=3`, `Shares=4`, `WorkingCapitalLoan=5`), `ChargeTimeType` (all 16 variants), `ChargeCalculationType` (all 5 variants + Working Capital Loan product mappings), `ChargePaymentMode` (`Regular=0`, `AccountTransfer=1`).
+  - `Charge::from_json`, `Charge::update`, and `Charge::delete` enforcing all loan, savings, client, and working capital loan validation rules (`ChargeDueAtDisbursementCannotBePenaltyException`, `ChargeMustBePenaltyException`, `ChargeParameterUpdateNotSupportedException`, and payment mode rules).
+- **Telemetry**:
+  - *Elapsed Time*: ~4.5 minutes | *Input Tokens*: ~16,000 | *Output Tokens*: ~4,500 | *Total*: **~20,500 tokens**
+  - *Tests*: **11 / 11 passing** (all 3 tests from `ChargeCalculationTypeTest` + all 8 tests from `ChargeTest`)
+
+---
+
+## 4. Remaining Roadmap (Waves 3 – 6)
+
+With **14 of 30 code-bearing Gradle modules** now migrated into **9 Rust crates** (75/75 passing tests), here are the remaining waves:
 
 ### Wave 3: Infrastructure, Security, Client SDK & Batch COB (~21,671 Java LOC)
 | Target Order | Gradle Module | Java Files | Java LOC | Proposed Rust Crate | Key Scope & Tech Upgrade |
 | :---: | :--- | :---: | :---: | :--- | :--- |
-| **#15–#16** | `fineract-client` + `fineract-client-feign` | 45 | 7,175 | `crates/fineract-client` | Type-safe async Rust SDK (`reqwest` / `tower`) replacing Retrofit/Feign |
+| **#15–#16** | `fineract-client` + `fineract-client-feign` | 45 | 7,175 | `crates/fineract-client` | Type-safe async Rust SDK & API client builder |
 | **#17** | `fineract-security` | 71 | 5,322 | `crates/fineract-security` | Axum Tower middleware for Basic Auth, OAuth2/JWT, 2FA, and tenant RBAC permissions |
-| **#18** | `fineract-document` | 94 | 5,711 | `crates/fineract-document` | Multipart document/image upload API, S3 & local filesystem storage traits |
+| **#18** | `fineract-document` | 94 | 5,711 | `crates/fineract-document` | Multipart document/image upload API, S3 & local filesystem content repository |
 | **#19** | `fineract-cob` | 68 | 3,463 | `crates/fineract-cob` | High-concurrency Close-of-Business (COB) partitioned worker engine in Tokio (replacing Spring Batch) |
 
 ### Wave 4: Accounting, Loan Origination & Investor Engine (~31,855 Java LOC)
@@ -145,23 +152,10 @@ These modules have small, well-bounded domain models and minimal external depend
 | **#22** | `fineract-accounting` | 174 | 14,314 | `crates/fineract-accounting` | General Ledger (GL) accounts, double-entry journal processor, trial balance & closures |
 
 ### Wave 5: Core Banking Foundations & Deposit/Loan Products (~266,561 Java LOC)
-| Target Order | Gradle Module | Java Files | Java LOC | Proposed Rust Crate | Key Scope & Tech Upgrade |
-| :---: | :--- | :---: | :---: | :--- | :--- |
-| **#23** | `fineract-core` | 844 | 77,611 | `crates/fineract-core` | Multi-tenant context, SQL query builder (`sqlx`), holidays, working days, calendars, codes |
-| **#24** | `fineract-savings` | 194 | 26,479 | `crates/fineract-savings` | Savings accounts, interest compounding/posting, holds, withdrawal fee engine |
-| **#25–#26** | `fineract-loan` + full `fineract-progressive-loan` | 794 | 93,613 | `crates/fineract-loan` | Full loan lifecycle, delinquency buckets, chargebacks, interest recalculation |
-| **#27** | `fineract-working-capital-loan` | 566 | 68,858 | `crates/fineract-working-capital` | Working capital revolving credit facilities & drawdowns |
+- **#23**: `fineract-core` (`crates/fineract-core`)
+- **#24**: `fineract-savings` (`crates/fineract-savings`)
+- **#25–#26**: `fineract-loan` + full `fineract-progressive-loan` (`crates/fineract-loan`)
+- **#27**: `fineract-working-capital-loan` (`crates/fineract-working-capital`)
 
 ### Wave 6: Strangler-Fig Replacement of Legacy `fineract-provider` (330,378 Java LOC)
-- Incrementally extract remaining vertical slices (Clients, Groups, Centers, Shares, Collaterals, Campaigns, Standing Instructions) from `fineract-provider` into dedicated Rust crates and route traffic via Axum 0.8 routers.
-
----
-
-## 5. Standard Protocol for Every Future Migration Turn
-
-For each module we migrate next, we will follow this repeatable 5-step protocol:
-1. **Inspect & Map**: Read the Java source and JUnit test suite in `/new_repository/<module>`.
-2. **Implement in Rust 2024**: Create `crates/<module>` in `/fineract-rust` using zero-cost abstractions, `BigDec`/`Money` primitives, and `axum`/`tokio` where applicable.
-3. **Verify 100% Test Parity**: Port all unit/integration tests and run `cargo test` until 0 errors and 0 warnings remain.
-4. **Update This Case Study Log**: Record exact input/output tokens, elapsed wall-clock time, Java-to-Rust LOC ratio, and architectural notes in `CASE_STUDY_AND_MIGRATION_LOG.md`.
-5. **Commit & Push to GitHub**: Push the new crate and updated case study log directly to `cmanikandan/fineract-rust`.
+- **#28–#30**: `fineract-provider` vertical slices + E2E test suites (`fineract-e2e-tests-core`, `fineract-e2e-tests-runner`).
