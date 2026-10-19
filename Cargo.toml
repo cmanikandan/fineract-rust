@@ -10,10 +10,14 @@ members = [
     "crates/fineract-tax",
     "crates/fineract-branch",
     "crates/fineract-charge",
+    "crates/fineract-client",
+    "crates/fineract-security",
+    "crates/fineract-document",
+    "crates/fineract-cob",
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 license = "Apache-2.0"
 authors = ["Apache Fineract Rust Migration"]
@@ -38,3 +42,7 @@ fineract-rates = { path = "crates/fineract-rates" }
 fineract-tax = { path = "crates/fineract-tax" }
 fineract-branch = { path = "crates/fineract-branch" }
 fineract-charge = { path = "crates/fineract-charge" }
+fineract-client = { path = "crates/fineract-client" }
+fineract-security = { path = "crates/fineract-security" }
+fineract-document = { path = "crates/fineract-document" }
+fineract-cob = { path = "crates/fineract-cob" }

@@ -1,44 +1,38 @@
 # fineract-rust
 
-A high-performance **Rust Edition 2024** migration of [Apache Fineract](https://fineract.apache.org/) modules.
+A modern **Rust (Edition 2024)** migration of [Apache Fineract](https://fineract.apache.org/), licensed under the **Apache License, Version 2.0**.
 
-## License & Attribution
+## Workspace Crates (Waves 1, 2 & 3 — 19 Gradle Modules Migrated into 13 Rust Crates)
 
-This project is a derivative work (Java-to-Rust translation and modernization) of [Apache Fineract](https://github.com/apache/fineract), licensed under the **Apache License, Version 2.0**.
+| Crate | Migrated From (Java / Gradle) | Description | Tests |
+| :--- | :--- | :--- | :---: |
+| `crates/fineract-validation` | `fineract-validation` | Self-contained validation constraints (Cron, DateFormat, Locale, Enum, Phone, URL, Range, etc.) | 14 |
+| `crates/fineract-schedule-generator` | `fineract-progressive-loan-embeddable-schedule-generator` | High-precision progressive loan EMI & repayment schedule calculator (`rust_decimal`) + `fineract-schedule-demo` CLI | 6 (incl. 403 CSV scenarios) |
+| `crates/fineract-command` | `fineract-command` + `async` + `audit` + `idempotency` + `quota` + `sample` | CQRS Command Pipeline, Router, Middlewares, Sync/Async/Disruptor Executors, and Axum 0.8 HTTP server | 8 |
+| `crates/fineract-events` | `fineract-avro-schemas` | Strongly-typed external business event schemas (`MessageV1`, `LoanAccountDataV1`, `LoanTransactionDataV1`, etc.) | 2 |
+| `crates/fineract-report` | `fineract-report` | Reporting process service trait, export types, parameter validation, and SQL injection guard | 3 |
+| `crates/fineract-rates` | `fineract-rates` | Floating interest rates, rate periods, Base Lending Rate (BLR) differential resolution, and validation | 15 |
+| `crates/fineract-tax` | `fineract-tax` | Tax components, tax groups, effective date history, and tax split/factor calculation engine | 9 |
+| `crates/fineract-branch` | `fineract-branch` | Branch offices, materialized hierarchy paths, inter-branch transfers, tellers, and cashier drawer management | 7 |
+| `crates/fineract-charge` | `fineract-charge` | Fee & penalty charge definitions, product compatibility matrix, and flat/percentage/sliding charge calculator | 11 |
+| `crates/fineract-client` | `fineract-client` & `fineract-client-feign` | Rust client SDK foundations, `ExternalIdAdapter`, multipart `Parts`/`FeignParts` MIME & magic-byte detection, and `FineractErrorDecoder` | 5 |
+| `crates/fineract-security` | `fineract-security` | Multi-tenant OIDC configuration service with issuer cache & secret encryption, JWT role/authority converter, and SQLi guard | 4 |
+| `crates/fineract-document` | `fineract-document` | Document storage traversal & magic-byte MIME content policies and chainable Base64/DataURL content processors | 3 |
+| `crates/fineract-cob` | `fineract-cob` | Close of Business (COB) batch range partitioner, dialect-aware SQL lock upgrade service, and ordered business step runner | 6 |
 
-Per **Sections 2 and 4 of the Apache License 2.0**:
-- You are explicitly permitted to **modify, translate, fork, and redistribute** this software in source or binary form (including in private or commercial repositories).
-- The original [LICENSE](./LICENSE) and [NOTICE](./NOTICE) files are preserved in the root of this repository, and all modified/translated files carry clear modification attribution notices.
+**Total Automated Tests Passing:** `93 / 93` (0 warnings)
 
----
-
-## Workspace Architecture (Waves 1 & 2 — 14 Gradle Modules → 9 Rust Crates)
-
-`fineract-rust` is organized as a Cargo workspace using **Rust Edition 2024** (`resolver = "3"`) and modern, latest-generation Rust dependencies (`rustc 1.99.1`, `axum 0.8`, `tokio 1.53`, `thiserror 2.0`, `chrono 0.4`, `serde 1.0`, `uuid 1.28`).
-
-| Wave | Crate | Original Java Modules | Rust LOC | Tests |
-| :---: | :--- | :--- | :---: | :---: |
-| **Wave 1** | `crates/fineract-validation` | `fineract-validation` | 967 | 14 |
-| **Wave 1** | `crates/fineract-schedule-generator` | `fineract-progressive-loan-embeddable-schedule-generator` (+ Progressive EMI & `BigDec`/`Money`) | 2,769 | 6 (+ CLI) |
-| **Wave 1** | `crates/fineract-command` | `fineract-command`, `-async`, `-audit`, `-disruptor`, `-jdbc`, `-test` | 1,697 | 8 |
-| **Wave 2** | `crates/fineract-events` | `fineract-avro-schemas` (`MessageV1`, `BulkMessagePayloadV1`, `ByteBufferSerializable`) | 362 | 2 |
-| **Wave 2** | `crates/fineract-report` | `fineract-report` (`ReportingProcessServiceProvider`, `ReportParameterTypeResolver`) | 384 | 3 |
-| **Wave 2** | `crates/fineract-rates` | `fineract-rates` (`FloatingRate`, BLR differential periods, validators, Axum API) | 941 | 15 |
-| **Wave 2** | `crates/fineract-tax` | `fineract-tax` (`TaxComponent`, `TaxGroup`, `TaxUtils`, `ChargeTaxApplicationService`, `TaxValidator`) | 615 | 9 |
-| **Wave 2** | `crates/fineract-branch` | `fineract-branch` (`Teller`, `Cashier`, `CashierTxnType`, `DateRange`, JSON deserializer) | 622 | 7 |
-| **Wave 2** | `crates/fineract-charge` | `fineract-charge` (`Charge`, `ChargeAppliesTo`, `ChargeTimeType`, `ChargeCalculationType`, `ChargePaymentMode`) | 875 | 11 |
-| **Total** | **9 Workspace Crates** | **14 Apache Fineract Gradle Modules** | **9,232 LOC** | **75 / 75 Passing** |
-
----
-
-## Building, Running & Testing
+## Quick Start
 
 ```bash
-# Run the complete unit and integration test suite (75 tests across all 9 crates)
+# Run all 93 unit and integration tests across all 13 workspace crates
 cargo test
 
-# Run the standalone Progressive Loan Schedule Generator CLI demo
-cargo run --bin fineract-schedule-demo
+# Run the standalone loan schedule generator demo
+cargo run -p fineract-schedule-generator --bin fineract-schedule-demo
 ```
 
-See [CASE_STUDY_AND_MIGRATION_LOG.md](./CASE_STUDY_AND_MIGRATION_LOG.md) for the chronological module-by-module case study, token/timing telemetry ledger, and Waves 3–6 roadmap.
+## Documentation
+
+- [CASE_STUDY_AND_MIGRATION_LOG.md](./CASE_STUDY_AND_MIGRATION_LOG.md) — Running case study, chronological module migration log, and token/timing telemetry across Waves 1, 2, and 3.
+- [MIGRATION_REPORT.md](./MIGRATION_REPORT.md) — Initial Wave 1 architectural benchmark report.
