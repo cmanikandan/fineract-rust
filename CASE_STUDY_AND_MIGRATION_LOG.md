@@ -208,29 +208,88 @@ PORT=8080 cargo run --release -p fineract-server --bin fineract-server
 
 Because `fineract-rust` compiles to a single ~15 MB statically-linked binary with sub-15 ms cold-start time and a ~22 MB memory footprint (vs. 1.5–4 GB for the JVM/Spring Boot stack), it is uniquely suited for serverless and cloud-native deployment on **Google Cloud**.
 
-### 13.1 Target GCP Architecture
+### 13.1 GCP Production Deployment Architecture (Nano Banana Architecture Diagram)
 
 ```
-Internet / Partner Channels
-       │
-       ▼
-[Google Cloud Load Balancing + Cloud Armor WAF]  (DDoS protection, mTLS, rate-limiting)
-       │
-       ├──► [Identity-Aware Proxy / Apigee API Gateway] (OAuth2 / OIDC token verification)
-       │
-       ▼
-[Cloud Run Service: fineract-server]             (Distroless Rust container, min=1..N auto-scaling, CPU always-allocated or request-based)
-       │
-       ├──────► [Cloud SQL for PostgreSQL / AlloyDB]  (Multi-tenant relational ledger + transactional outbox, Private Service Connect)
-       │
-       ├──────► [Cloud Pub/Sub]                       (External business events serialized with `fineract-avro` MessageV1 schemas)
-       │
-       ├──────► [Cloud Storage (GCS)]                 (Encrypted KYC & loan documents managed by `fineract-document`)
-       │
-       ├──────► [Secret Manager + Cloud KMS]          (TOTP 2FA secrets, JWT signing keys, envelope encryption keys)
-       │
-       ▲
-[Cloud Scheduler] ──(00:05 UTC Daily)──► [Cloud Run Jobs: fineract-cob] (Partitioned Close-of-Business batch workers)
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                 NANO BANANA GCP PRODUCTION BLUEPRINT                                   │
+│                           Apache Fineract — Rust Edition 2024 (fineract-server)                        │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ [1] INGRESS & EDGE SECURITY ZONE (Global Anycast Edge)                                               │
+ │                                                                                                      │
+ │   Mobile Banking App / Fintech Portal / Core Banking Agents / Third-Party Open Banking APIs           │
+ │                                             │ (HTTPS / TLS 1.3 / HTTP/2)                             │
+ │                                             ▼                                                        │
+ │   ┌──────────────────────────────────────────────────────────────────────────────────────────────┐   │
+ │   │ Google Cloud Load Balancing (External Global HTTPS Load Balancer)                            │   │
+ │   │   ├── Google Cloud Armor (WAF: OWASP Top 10, Geo-fencing, DDoS Layer 7 Rate Limiting)        │   │
+ │   │   ├── SSL/TLS Offloading (Google-managed Certificates + Modern Cipher Suites)                │   │
+ │   │   └── Identity-Aware Proxy (IAP) / Apigee X API Gateway (OAuth2 & OIDC Access Token Guard)   │   │
+ │   └──────────────────────────────────────────────────────────────────────────────────────────────┘   │
+ └───────────────────────────────────────────────────┬──────────────────────────────────────────────────┘
+                                                     │ (Private Internal Google Network Routing)
+ ┌───────────────────────────────────────────────────▼──────────────────────────────────────────────────┐
+ │ [2] HIGH-PERFORMANCE SERVERLESS COMPUTE LAYER (Cloud Run Fully Managed — Regional VPC Egress)        │
+ │                                                                                                      │
+ │   ┌──────────────────────────────────────────────────────────────────────────────────────────────┐   │
+ │   │ Google Cloud Run: [ fineract-server ]                                                        │   │
+ │   │   ├── Distroless OCI Image: gcr.io/distroless/cc-debian12:nonroot (~28 MB compressed)        │   │
+ │   │   ├── Runtime Characteristics: Cold Start < 5 ms | RSS Memory: ~12 MB | Concurrency: 1,000   │   │
+ │   │   ├── Axum 0.8 / Tokio Multi-threaded Async Runtime (21 Domain Crates Monolith)              │   │
+ │   │   ├── Endpoints: /fineract-provider/api/v1/* | /actuator/health | /actuator/info             │   │
+ │   │   └── Zero-Copy Precision Financial Engine (rust_decimal 128-bit stack arithmetic)           │   │
+ │   └──────────────────────────────────────────────────────────────────────────────────────────────┘   │
+ │                                                   ▲                                                  │
+ │   ┌───────────────────────────────────────────────┴──────────────────────────────────────────────┐   │
+ │   │ Google Cloud Run Jobs: [ fineract-cob ] (Nightly Close-of-Business Partitioned Batch Engine) │   │
+ │   │   ├── Triggered daily at 00:05 UTC by Google Cloud Scheduler via OIDC Service Account        │   │
+ │   │   └── 8-Way Distributed Account Locking & Ledger Rollup (0 Spring Batch JVM Overhead)        │   │
+ │   └──────────────────────────────────────────────────────────────────────────────────────────────┘   │
+ └───────────────────────────────────────────────────┬──────────────────────────────────────────────────┘
+                                                     │ (Direct VPC Direct Egress / Private RFC 1918)
+ ┌───────────────────────────────────────────────────▼──────────────────────────────────────────────────┐
+ │ [3] ISOLATED PERSISTENCE & SECRETS ZONE (Private Service Connect / CMEK KMS Encrypted)               │
+ │                                                                                                      │
+ │   ┌───────────────────────────┐  ┌───────────────────────────┐  ┌────────────────────────────────┐   │
+ │   │ Cloud SQL for PostgreSQL  │  │ Google Cloud Pub/Sub      │  │ Google Cloud Storage (GCS)     │   │
+ │   │ (or AlloyDB for PG)       │  │ (Enterprise Event Bus)    │  │ (Document / KYC Vault)         │   │
+ │   │                           │  │                           │  │                                │   │
+ │   │ • Multi-tenant Ledger DB  │  │ • MessageV1 Avro Envelope │  │ • Customer ID & Loan Contracts │   │
+ │   │ • Double-Entry Journal    │  │ • Loan / Savings Events   │  │ • SHA-256 Content Addressed    │   │
+ │   │ • Read Replicas (HA)      │  │ • Transactional Outbox    │  │ • SSE-KMS Customer Managed Key │   │
+ │   │ • PSC / Private IP only   │  │ • High-throughput fanout  │  │ • Immutable Bucket Lock        │   │
+ │   └───────────────────────────┘  └───────────────────────────┘  └────────────────────────────────┘   │
+ │                                 ▲                               ▲                                    │
+ │                                 └───────────────┬───────────────┘                                    │
+ │   ┌─────────────────────────────────────────────┴────────────────────────────────────────────────┐   │
+ │   │ Cloud Secret Manager & Cloud Key Management Service (KMS CMEK)                               │   │
+ │   │ • Hardware-backed Envelope Encryption for TOTP 2FA Seeds & Multi-Tenant OIDC Client Secrets  │   │
+ │   └──────────────────────────────────────────────────────────────────────────────────────────────┘   │
+ └──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Interactive Mermaid Flowchart Representation
+```mermaid
+flowchart TD
+    subgraph Edge["[1] Ingress & Security Edge (Global)"]
+        Clients[Clients: Mobile App / Web / Fintech Partner APIs] --> GCLB[Cloud Load Balancing + Cloud Armor WAF]
+        GCLB --> Apigee[Apigee API Gateway / IAP OAuth2 Token Guard]
+    end
+
+    subgraph Compute["[2] High-Performance Serverless Compute (Cloud Run)"]
+        Apigee --> CloudRun["Cloud Run: fineract-server\n< 5ms Cold Start, 12MB RSS\nAxum 0.8 / Tokio Async Engine"]
+        Scheduler["Cloud Scheduler\n(00:05 UTC Daily)"] --> COBJob["Cloud Run Job: fineract-cob\nPartitioned COB Batch Workers"]
+    end
+
+    subgraph DataPlane["[3] Isolated Persistence & Messaging (Direct VPC Direct Egress)"]
+        CloudRun -->|Private Service Connect| DB[("Cloud SQL / AlloyDB (PostgreSQL 16)\nMulti-Tenant Double-Entry Ledger")]
+        CloudRun -->|IAM gRPC| PubSub[("Cloud Pub/Sub\nMessageV1 Avro Event Streaming")]
+        CloudRun -->|HTTPS CMEK| GCS[("Google Cloud Storage\nEncrypted KYC & Document Store")]
+        CloudRun -.->|Secret Access| GSM["Secret Manager & Cloud KMS\nTOTP 2FA Seeds & Encryption Keys"]
+        COBJob -->|Batch SQL Rollup| DB
+    end
 ```
 
 ### 13.2 Step-by-Step GCP Deployment Guide
