@@ -1,6 +1,8 @@
 # Fineract-Rust Migration Case Study & Complete Telemetry Log (Waves 1–5 — 100% Complete)
 
 **Project:** `fineract-rust` (Apache Fineract Java 21 / Spring Boot 3.x $\rightarrow$ Rust Edition 2024 Workspace)  
+**Original Upstream Project:** [Apache Fineract](https://fineract.apache.org/) (ASF Repository: [apache/fineract](https://github.com/apache/fineract))  
+**Product Overview:** Core banking platform for digital banks, microfinance institutions (MFIs), and credit unions, powering lending, savings, double-entry GL accounting, and COB batch processing.  
 **Target Repository:** `https://github.com/cmanikandan/fineract-rust` (Private)  
 **License:** Apache License 2.0 (Compliant fork with original ASF copyright notices and `NOTICE` file preserved)  
 **Model Evaluated:** **Gemini Argon** (1M Token Context Window + Long-Decode Output)
