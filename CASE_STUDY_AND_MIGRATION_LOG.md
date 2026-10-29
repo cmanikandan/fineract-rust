@@ -3,9 +3,9 @@
 **Project:** `fineract-rust` (Apache Fineract Java 21 / Spring Boot 3.x $\rightarrow$ Rust Edition 2024 Workspace)  
 **Original Upstream Project:** [Apache Fineract](https://fineract.apache.org/) (ASF Repository: [apache/fineract](https://github.com/apache/fineract))  
 **Product Overview:** Core banking platform for digital banks, microfinance institutions (MFIs), and credit unions, powering lending, savings, double-entry GL accounting, and COB batch processing.  
-**Target Repository:** `https://github.com/cmanikandan/fineract-rust` (Private)  
+**Target Repository:** `https://github.com/cmanikandan/fineract-rust` (Public Proof of Concept)  
 **License:** Apache License 2.0 (Compliant fork with original ASF copyright notices and `NOTICE` file preserved)  
-**Model Evaluated:** **Gemini Argon** (1M Token Context Window + Long-Decode Output)
+**Model Evaluated:** **Gemini 4 Argon** (1M Token Context Window + Long-Decode Output)
 
 ---
 
@@ -15,7 +15,7 @@ This document serves as the comprehensive engineering case study and telemetry l
 
 | Metric | Wave 1 (#1–#8) | Wave 2 (#9–#14) | Wave 3 (#15–#19) | Wave 4 (#20–#22) | Wave 5 (#23–#30) | Final Cumulative Total (Waves 1–5) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Model Used** | Gemini Argon | Gemini Argon | Gemini Argon | Gemini Argon | Gemini Argon | **Gemini Argon** |
+| **Model Used** | Gemini 4 Argon | Gemini 4 Argon | Gemini 4 Argon | Gemini 4 Argon | Gemini 4 Argon | **Gemini 4 Argon** |
 | **Gradle Modules Migrated** | 8 (`fineract-validation`, `fineract-progressive-loan-embeddable-schedule-generator`, 6 `fineract-command-*` subprojects) | 6 (`fineract-avro-schemas`, `fineract-report`, `fineract-rates`, `fineract-tax`, `fineract-branch`, `fineract-charge`) | 5 (`fineract-client`, `fineract-client-feign`, `fineract-security`, `fineract-document`, `fineract-cob`) | 3 (`fineract-loan-origination`, `fineract-investor`, `fineract-accounting`) | 8 (`fineract-core`, `fineract-loan`, `fineract-progressive-loan`, `fineract-savings`, `fineract-working-capital-loan`, `fineract-provider`, `fineract-e2e-tests-core`, `fineract-e2e-tests-runner`) | **30 of 30 Gradle Modules (100.0%)** |
 | **Rust Crates Produced** | 3 (`fineract-validation`, `fineract-schedule-generator`, `fineract-command`) | 6 (`fineract-events`, `fineract-report`, `fineract-rates`, `fineract-tax`, `fineract-branch`, `fineract-charge`) | 4 (`fineract-client`, `fineract-security`, `fineract-document`, `fineract-cob`) | 3 (`fineract-loan-origination`, `fineract-investor`, `fineract-accounting`) | 5 (`fineract-core`, `fineract-loan`, `fineract-savings`, `fineract-working-capital-loan`, `fineract-server`) | **21 Workspace Crates + 2 Binaries** |
 | **Rust Lines of Code (LOC)** | 5,433 lines | 3,799 lines | 1,931 lines | 2,712 lines | 2,652 lines | **16,527 lines of Rust** |
@@ -27,7 +27,7 @@ This document serves as the comprehensive engineering case study and telemetry l
 
 ---
 
-## 2. How Gemini Argon's 1M Context & Long-Decode Powered the Migration
+## 2. How Gemini 4 Argon's 1M Context & Long-Decode Powered the Migration
 
 1. **Simultaneous Multi-Module Context Ingestion (1M Token Window)**:
    - In Waves 4 and 5, hundreds of Java domain classes, financial calculators, validators, and JUnit test suites across 11 Gradle modules (`fineract-loan-origination`, `fineract-investor`, `fineract-accounting`, `fineract-core`, `fineract-loan`, `fineract-progressive-loan`, `fineract-savings`, `fineract-working-capital-loan`, `fineract-provider`, `fineract-e2e-tests-core`, `fineract-e2e-tests-runner`) were loaded and cross-referenced simultaneously within the 1-million-token context window.
