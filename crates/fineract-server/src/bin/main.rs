@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if args.iter().any(|a| a == "--check") {
         println!(
-            "Fineract-Rust v1.0.0 self-check passed (all 43 Gradle modules / 19 Rust crates active)."
+            "Fineract-Rust v1.0.0 self-check passed (all 43 Gradle modules / 22 Rust crates active)."
         );
         return Ok(());
     }

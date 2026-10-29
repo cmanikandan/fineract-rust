@@ -86,12 +86,19 @@ pub struct AuthenticationRequest {
     pub password: String,
 }
 
+fn default_gl_account_id() -> i64 {
+    1001
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateGLAccountRequest {
+    #[serde(default = "default_gl_account_id")]
     pub id: i64,
     pub name: String,
+    #[serde(alias = "gl_code")]
     pub gl_code: String,
+    #[serde(alias = "account_type")]
     pub account_type: GLAccountType,
 }
 
@@ -181,7 +188,7 @@ async fn health_handler() -> impl IntoResponse {
         "status": "UP",
         "application": "fineract-rust",
         "version": "1.0.0",
-        "crates": 19,
+        "crates": 22,
         "gradleModulesMigrated": "100%"
     }))
 }
